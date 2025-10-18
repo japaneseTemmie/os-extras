@@ -1,6 +1,7 @@
 from os.path import join, isfile, isdir, exists, basename, dirname
 from os import remove, rmdir, listdir, makedirs, getcwd
 from shutil import copy2, move
+from hashlib import sha256
 
 from re import compile, match
 
@@ -355,7 +356,7 @@ class Folder:
         Raises standard OS or regex exceptions. """
 
         if not isinstance(item, str):
-            raise ValueError(f"Expected type str for argument item, not {item.__class__}")
+            raise ValueError(f"Expected type str for argument item, not {item.__class__.__name__}")
         
         pattern = compile(item) if use_regex else None
 
@@ -370,3 +371,29 @@ class Folder:
                 
                 obj = subfolder.find(item)
                 if obj: return obj
+
+    def compare_hash(self, other: "Folder") -> bool:
+        """ Compare the hashes of all files in the `other` folder with the ones in this folder. 
+        
+        Raises standard OS or hashlib exceptions. """
+
+        if not isinstance(other, Folder):
+            raise ValueError(f"Expected Folder for argument other, not {other.__class__.__name__}")
+        
+        my_files = sorted([f for f in self.files()], key=lambda f: f.name)
+        other_files = sorted([other_f for other_f in other.files()], key=lambda other_f: other_f.name)
+
+        if len(my_files) != len(other_files):
+            raise ValueError("Folders must have the same file count")
+
+        hashes = []
+
+        for file, other_file in zip(my_files, other_files):
+
+            with open(file.path, "rb") as fd, open(other_file.path, "rb") as other_fd:
+                file_hash = sha256(fd.read()).hexdigest()
+                other_file_hash = sha256(other_fd.read()).hexdigest()
+
+                hashes.append(file_hash == other_file_hash)
+
+        return all(hashes)
