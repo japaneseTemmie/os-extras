@@ -17,7 +17,7 @@ class File:
      
     bool(file) -> returns True if file exists """
     
-    def __init__(self, path: str, ensure_exists: bool=False):
+    def __init__(self, path: str, ensure_exists: bool=False) -> None:
         if not isinstance(path, str):
             raise ValueError(f"Expected type str for argument path, not {path.__class__.__name__}")
         
@@ -36,11 +36,13 @@ class File:
     def __bool__(self) -> bool:
         return self.path is not None and isfile(self.path)
 
-    def read(self, mode: str) -> str | bytes:
+    def read(self, mode: str="r") -> str | bytes:
         """ Read file contents.
          
         Returns file contents or None if file doesn't exist.
         
+        `mode` must be either 'r' or 'rb'.
+
         Raises standard OS exceptions. """
 
         if not exists(self.path) or self.path is None:
@@ -127,7 +129,7 @@ class Folder:
     
     An empty `path` will create the folder object using the script's directory. Or CWD if __file__ is missing. """
 
-    def __init__(self, path: str="", ensure_exists: bool=False):
+    def __init__(self, path: str="", ensure_exists: bool=False) -> None:
         if not isinstance(path, str):
             raise ValueError(f"Expected type str for argument path, not {path.__class__.__name__}")
         
@@ -170,7 +172,7 @@ class Folder:
             if isdir(full_fp):
                 yield Folder(full_fp)
 
-    def add_file(self, name: str, content: str | None=None) -> str | None:
+    def add_file(self, name: str, content: str | None=None) -> str:
         """ Add a file to the folder.
 
         `name` must be a file name only, not path.
@@ -222,7 +224,7 @@ class Folder:
 
         return file_path
 
-    def make_subfolder(self, name: str) -> str | None:
+    def make_subfolder(self, name: str) -> str:
         """ Create a subfolder in the folder.
          
         `name` must be a folder name.
