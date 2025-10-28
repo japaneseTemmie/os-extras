@@ -1,3 +1,3 @@
-# os-extra-utils
+# Python FS utilities
 
-My own set of OS utilities for Python3
+My own set of object-oriented filesystem utilities for Python3.
