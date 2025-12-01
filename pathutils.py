@@ -336,10 +336,10 @@ class Folder:
 
         return deleted_files
 
-    def copy_to(self, path: str) -> tuple[list[File], list[File]]:
+    def copy_to(self, path: str) -> list[tuple[File, File]]:
         """ Copy the folder to a new location. 
         
-        Return a tuple with destination files and original files.
+        Return a list of tuples with original file and destination file.
 
         Raises standard OS exceptions. """
         
@@ -348,23 +348,19 @@ class Folder:
         elif not exists(self.path) or self.path is None:
             raise TypeError("Folder path must point to a valid location")
 
-        destination_files, original_files = [], []
+        pairs = []
 
         makedirs(path, exist_ok=True)
 
         for file in self.files():
             source_file, new_file = file.copy_to(join(path, file.name))
-
-            original_files.append(source_file)
-            destination_files.append(new_file)
+            pairs.append((source_file, new_file))
 
         for subfolder in self.subfolders():
-            other_destination_files, other_original_files = subfolder.copy_to(join(path, subfolder.name))
-        
-            destination_files.extend(other_destination_files)
-            original_files.extend(other_original_files)
+            other_pairs = subfolder.copy_to(join(path, subfolder.name))
+            pairs.extend(other_pairs)
 
-        return destination_files, original_files
+        return pairs
 
     def move_to(self, path: str) -> list[File]:
         """ Move the folder to a new location. 
