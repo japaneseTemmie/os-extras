@@ -3,9 +3,9 @@ from os import remove, rmdir, listdir, makedirs, getcwd
 from shutil import copy2, move
 from hashlib import sha1, sha224, sha256, sha384, sha512
 
-from re import compile, match
+from re import match, Pattern
 
-from typing import Generator, Union
+from typing import Generator, Union, Optional
 from types import NoneType
 
 class File:
@@ -380,29 +380,40 @@ class Folder:
 
         return moved_files
 
-    def find(self, item: str, use_regex: bool=False) -> Union[File, "Folder"] | None:
+    def find(self, item: str | Pattern) -> list[Optional[Union[File, "Folder"]]]:
         """ Find first occurrence of file or subfolder in the folder.
          
-        Treat `item` as a regex pattern if `use_regex` is true.
+        `item` can either be a string to compare a file name to, or a `re.Pattern` object to match to a file name.
 
-        Returns a File or Folder object or None for no matches.
+        Return a list of `File` or `Folder` objects.
          
         Raises standard OS or regex exceptions. """
 
-        if not isinstance(item, str):
-            raise ValueError(f"Expected type str for argument item, not {item.__class__.__name__}")
+        if not isinstance(item, (str, Pattern)):
+            raise ValueError(f"Expected type str or re.Pattern for argument item, not {item.__class__.__name__}")
         elif not exists(self.path) or self.path is None:
             raise TypeError("Folder path must point to a valid location")
-        
-        pattern = compile(item) if use_regex else None
+
+        matches = []
+        is_regex = isinstance(item, Pattern)
 
         for file in self.files():
-            if file.name == item if not pattern else match(pattern, file.name):
-                return file
+            if not is_regex:
+                if file.name == item:
+                    matches.append(file)
+            else:
+                if item.match(file.name):
+                    matches.append(file)
             
         for subfolder in self.subfolders():
-            if subfolder.name == item if not pattern else match(pattern, subfolder.name):
-                return subfolder
+            if not is_regex:
+                if subfolder.name == item:
+                    matches.append(subfolder)
+            else:
+                if item.match(subfolder.name):
+                    matches.append(subfolder)
             
-            obj = subfolder.find(item, use_regex)
-            if obj: return obj
+            other_matches = subfolder.find(item)
+            if other_matches: matches.extend(other_matches)
+
+        return matches
