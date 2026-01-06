@@ -17,7 +17,7 @@ class File:
     bool(file) -> returns True if file exists
     iter(file) -> returns a generator object for each line 
     
-    An empty `path` will create the file in the CWD. 
+    An empty `path` will create a file named 'UntitledFile' in the CWD. 
     
     Raises ValueError and TypeError on invalid data. """
 
@@ -31,7 +31,7 @@ class File:
         if not exists(path):
 
             if ensure_exists:
-                open(path, "w").close()
+                open(path, "a").close()
             else:
                 raise ValueError(f"File {path} does not exist")
         elif not isfile(path):
@@ -289,7 +289,7 @@ class Folder:
     bool(Folder) -> returns True if the folder exists in the filesystem.
     iter(Folder) -> returns an iterator of the folder's files and directories.
     
-    An empty `path` will create the folder in the CWD. 
+    An empty `path` will create a folder named 'UntitledFolder' in the CWD. 
     
     Raises ValueError or TypeError on invalid data. """
 
