@@ -18,11 +18,13 @@ class File:
     bool(file) -> returns True if file exists
     iter(file) -> returns a generator object for each line 
     
-    An empty `path` will create the file in the CWD. """
+    An empty `path` will create the file in the CWD. 
+    
+    Raises ValueError and TypeError on invalid data. """
 
     def __init__(self, path: str="", ensure_exists: bool=False) -> None:
         if not isinstance(path, str):
-            raise ValueError(f"Expected type str for argument path, not {path.__class__.__name__}")
+            raise TypeError(f"Expected type str for argument path, not {path.__class__.__name__}")
         
         if not path:
             path = join(getcwd(), "UntitledFile")
@@ -93,7 +95,7 @@ class File:
         elif not isinstance(encoding, str):
             raise ValueError(f"Expected type str for argument encoding, not {encoding.__class__.__name__}")
 
-        with open(self.path, "r", bufsize, encoding) as f:
+        with open(self.path, "r", encoding=encoding) as f:
             return f.read(bufsize)
 
     def write_bytes(self, content: bytes) -> int:
