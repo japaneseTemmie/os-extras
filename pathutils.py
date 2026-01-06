@@ -357,6 +357,13 @@ class Folder:
         
         return ismount(self._path)
 
+    @property
+    def is_symlink(self) -> bool:
+        if self._path is None or not isdir(self._path):
+            raise ValueError(f"path attribute must point to a valid folder")
+        
+        return islink(self._path)
+
     def files(self) -> Generator[File, None, None]:
         """ Return a generator of file objects present in the directory. """
         if self._path is None or not isdir(self._path):
@@ -473,6 +480,11 @@ class Folder:
 
         if self._path is None or not isdir(self._path):
             raise ValueError("path attribute must point to a valid folder")
+        elif islink(self._path):
+            remove(self._path)
+            self._path = None
+
+            return
         
         for file in self.files():
             file.delete()
