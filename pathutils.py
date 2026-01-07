@@ -460,7 +460,7 @@ class Folder:
     def delete(self) -> None:
         """ Recursively delete the folder.
 
-        After this operation, this folder's path becomes `None`. Effectively rendering the object useless unless set to another one.
+        After this operation, this folder's path becomes `None`, effectively rendering the object useless.
 
         Raises standard OS exceptions and additional ValueError. """
 
